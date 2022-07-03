@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        let app;
+        let player;
+        let bullets = [];
+        let bulletSpeed = 10;
+        let keys = {};
+        let keysDiv;
+
+        window.onload = function () {
+            app = new PIXI.Application(
+                {
+                    width: 800,
+                    height: 600,
+                    backgroundColor: 0xAAAAA
+                }
+            )
+
+            document.querySelector('#gameDiv').appendChild(app.view);
+            app.stage.interactive = true;
+            document.querySelector('#gameDiv').addEventListener('pointerdown', fireBullet);
+
+
+                app.loader.baseUrl = 'images';
+                app.loader
+                    .add('sprite01', 'i1.png')
+                    .add('sprite02', 'i2.png')
+                    .add('sprite03', 'i3.png')
+                    .add('sprite04', 'i4.png')
+                    .add('sprite05', 'i5.png')
+                    .add('sprite06', 'i6.png')
+                    .add('sprite07', 'i7.png')
+                    .add('sprite08', 'i8.png')
+                    .add('sprite09', 'i9.png')
+                    .add('sprite10', 'i10.png')
+                    .add('player', 'player.png')
+                    .add('bullet', 'bullet.png')
+
+
+                app.loader.onProgress.add(showProgress);
+                app.loader.onComplete.add(doneLoading);
+                app.loader.onError.add(reportError);
+
+                app.loader.load();
+
+            // //keyboard move
+            // player = new PIXI.Sprite.from('images/1.png');
+            // player.anchor.set(0.5);
+            // player.x = app.view.width / 2;
+            // player.y = app.view.height / 2;
+            // app.stage.addChild(player)
+
+            //     window.addEventListener('keydown', keysDown);
+            //     window.addEventListener('keyup', keysUp);
+
+            //     app.ticker.add(gameLoop);
+
+            //     keysDiv = document.querySelector('#keys');
+                
+            //     function keysDown(event) {
+            //         keys[event.keyCode] = true;
+            //     }
+            //     function keysUp(event) {
+            //         keys[event.keyCode] = false;
+            //     }
+
+            //     function gameLoop() {
+            //         keysDiv.innerHTML = JSON.stringify(keys);
+
+            //         if (keys['68']) {
+            //             player.x += 5;
+            //         }
+            //         if (keys['65']) {
+            //             player.x -= 5;
+            //         }
+            //         if (keys['83']) {
+            //             player.y += 5;
+            //         }
+            //         if (keys['87']) {
+            //             player.y -= 5;
+            //         }
+            //     }
+
+        }
+
+        function showProgress(event) {
+            console.log(event.progress);
+            keysDiv = document.querySelector('#loader');
+            keysDiv.innerHTML = event.progress;
+        }
+        function reportError(event) {
+            console.log('err');
+        }
+
+        function doneLoading(event) {
+            if (event.progress === 100) {
+                keysDiv.innerHTML = '';
+            }
+
+            player = PIXI.Sprite.from(app.loader.resources.player.texture);
+            player.x = app.view.width / 2;
+            player.y = app.view.height / 2;
+            player.anchor.set(0.5);
+            app.stage.addChild(player);
+
+            app.ticker.add(gameLoop);
+        }
+
+        // bullets
+        function fireBullet(event) {
+            let bullet = createBullet();
+            bullets.push(bullet);
+        }
+
+        function createBullet() {
+            let bullet = PIXI.Sprite.from(app.loader.resources.bullet.texture);
+            bullet.anchor.set(0.5);
+            bullet.x = player.x;
+            bullet.y = player.y;
+            bullet.speed = bulletSpeed;
+            app.stage.addChild(bullet);
+
+            return bullet;
+        }
+        function updateBullet(delta) {
+            for (let i = 0; i < bullets.length; i++) {
+                  bullets[i].position.y -= bullets[i].speed;
+                  
+                  if (bullets[i].position.y < 0) {
+                    bullets[i].dead = true;
+                  }
+            }
+            for (let i = 0; i < bullets.length; i++) {
+                  if (bullets[i].dead) {
+                    app.stage.removeChild(bullets[i]);
+                    bullets.splice(i, 1)
+                }
+            }
+        }
+        function gameLoop(delta) {
+            updateBullet();
+        }
+
+    </script>
+
+</head>
+
+<body>
+<!-- <div id="keys"></div> -->
+<div id="loader"></div>
+<div id="gameDiv"></div>
+</body>
+<script src="./js/pixi.min.js"></script>
+
+</html>

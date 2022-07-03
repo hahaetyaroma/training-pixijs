@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script>
+        let app;
+        let player;
+        let keys = {};
+        let keysDiv;
+        let playerSheet = {};
+
+        window.onload = function () {
+            app = new PIXI.Application(
+                {
+                    width: 1500,
+                    height: 600,
+                    backgroundColor: 0xAAAAA
+                }
+            );
+            document.body.appendChild(app.view);
+
+            app.loader.add('Donatello', 'images/DonatelloWalking.png')
+            app.loader.load(doneLoading)
+
+            //keyboard move
+            window.addEventListener('keydown', keysDown);
+            window.addEventListener('keyup', keysUp);
+
+            keysDiv = document.querySelector('#keys');
+
+        }
+
+        function doneLoading(event) {
+            createPlayerSheet();
+            createPlayer();
+            app.ticker.add(gameLoop);
+        }
+
+        function createPlayerSheet() {
+            let ssheet = new PIXI.BaseTexture.from(app.loader.resources['Donatello'].url);
+            let w = 46;
+            let h = 52;
+
+            playerSheet['standSouth'] = [
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h))
+            ];
+            playerSheet['walkSouth'] = [
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(0 * w, 0, w, h)),
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(2 * w, 0, w, h)),
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(3 * w, 0, w, h)),
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+                new PIXI.Texture(ssheet, new PIXI.Rectangle(5 * w, 0, w, h)),
+            ];
+        }
+
+        function keysDown(event) {
+                keys[event.keyCode] = true;
+            }
+            function keysUp(event) {
+                keys[event.keyCode] = false;
+            }
+
+            function gameLoop() {
+                keysDiv.innerHTML = JSON.stringify(keys);
+
+                if (keys['68']) {
+                    player.x += 5;
+                }
+                if (keys['65']) {
+                    player.x -= 5;
+                }
+                if (keys['83']) {
+                    player.y += 5;
+                }
+                if (keys['87']) {
+                    player.y -= 5;
+                }
+            }
+
+            function createPlayer() {
+                player = new PIXI.AnimatedSprite(playerSheet.walkSouth);
+                player.anchor.set(0.5);
+                player.animationSpeed = .1;
+                player.loop = true;
+                player.scale.x = 2;
+                player.scale.y = 2;
+                player.x = app.view.width / 2;
+                player.y = app.view.height / 2;
+                app.stage.addChild(player);
+                player.play();
+            }
+    </script>
+
+</head>
+
+<body>
+    <div id="keys"></div>
+    <div id="gameDiv"></div>
+    <button class="btn">button</button>
+</body>
+<script src="./js/pixi.min.js"></script>
+
+</html>
